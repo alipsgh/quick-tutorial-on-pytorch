@@ -10,4 +10,4 @@ I will be adding tutorials for deep learning using PyTorch in this repository. I
 * Restricted Boltzman Machines (RBMs)
 * Autoencoders (AEs)
 
-<sub>Ali Pesaranghader © 2017</sub>
+<sub>Ali Pesaranghader © 2018</sub>
