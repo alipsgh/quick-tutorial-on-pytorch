@@ -35,7 +35,7 @@ print(len(training_set), "instances exist for training.")
 print(len(test_set), "instances exist for testing.")
 
 batch_size = 64
-num_epochs = 64
+num_epochs = 32
 
 training_set_loader = data.DataLoader(dataset=training_set, batch_size=batch_size, shuffle=True)
 test_set_loader = data.DataLoader(dataset=test_set, batch_size=batch_size, shuffle=False)
@@ -86,24 +86,24 @@ for test_X, test_y in test_set_loader:
 
     # test_X_ = rbm.compress(test_X)
     test_X_ = dae.reconstruct(test_X)
-    show_and_save("generated", make_grid(test_X_.view(batch_size, 1, 28, 28).data))
+    show_and_save("reconstructed", make_grid(test_X_.view(batch_size, 1, 28, 28).data))
 
-    test_X_ = dae.encode(test_X)
-    show_and_save("encoded", make_grid(test_X_.view(batch_size, 1, 10, 10).data))
+    # test_X_ = dae.encode(test_X)
+    # show_and_save("encoded", make_grid(test_X_.view(batch_size, 1, 10, 10).data))
 
     break
 
-Ws, Wm = dae.get_weight()
-show_and_save("weights_dae", make_grid(Wm.view(100, 1, 28, 28).data))
-
-w = Ws[0]
-show_and_save("weights_dae_1", make_grid(w.cpu().view(625, 1, 28, 28).data))
-
-w = Ws[1]
-show_and_save("weights_dae_2", make_grid(w.cpu().view(529, 1, 25, 25).data))
-
-w = Ws[2]
-show_and_save("weights_dae_3", make_grid(w.cpu().view(324, 1, 23, 23).data))
-
-w = Ws[3]
-show_and_save("weights_dae_4", make_grid(w.cpu().view(100, 1, 18, 18).data))
+# Ws, Wm = dae.get_weight()
+# show_and_save("weights_dae", make_grid(Wm.view(100, 1, 28, 28).data))
+#
+# w = Ws[0]
+# show_and_save("weights_dae_1", make_grid(w.cpu().view(625, 1, 28, 28).data))
+#
+# w = Ws[1]
+# show_and_save("weights_dae_2", make_grid(w.cpu().view(529, 1, 25, 25).data))
+#
+# w = Ws[2]
+# show_and_save("weights_dae_3", make_grid(w.cpu().view(324, 1, 23, 23).data))
+#
+# w = Ws[3]
+# show_and_save("weights_dae_4", make_grid(w.cpu().view(100, 1, 18, 18).data))
