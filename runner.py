@@ -5,10 +5,11 @@ import torchvision.datasets as datasets
 from torchvision.utils import make_grid, save_image
 from torch.utils import data
 
-from learners.supervised.ann import ANN
-from learners.unsupervised.ae import AE
-from learners.unsupervised.rbm_pytorch import RBM
+from models.ann import ANN
+from models.ae import AE
+from models.rbm import RBM
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 torch.manual_seed(0)
 if torch.cuda.is_available():
@@ -42,11 +43,6 @@ test_set_loader = data.DataLoader(dataset=test_set, batch_size=batch_size, shuff
 input_dim = 28 * 28
 output_dim = 10
 
-'''
-ann = ANN(input_dim=input_dim, hidden_layers_dim=[100, 100, 100], output_dim=output_dim, activations=['relu'] * 3, optimizer='adam', learning_rate=0.001)
-print(ann)
-'''
-
 dae = AE(input_dim=input_dim, encoders_dim=[625, 529, 324, 100], encoder_activations=['relu'] * 4, optimizer='adam', learning_rate=0.001)
 
 print(dae.linear_layers)
@@ -56,53 +52,30 @@ compress_dim = 500
 rbm = RBM(vis_dim=input_dim, hid_dim=compress_dim, k=15, learning_rate=0.1)
 '''
 
+pb_epoch = tqdm(total=num_epochs, ncols=100, desc=f"Epoch {0}, training loss: ?", position=0)
+pb_batch = tqdm(total=len(training_set_loader), ncols=100, desc="Batch", position=1)
 for epoch in range(num_epochs):
 
     loss_ = []
-    iteration_counter = 0
 
+    pb_batch.reset()
     for i, (train_X, train_y) in enumerate(training_set_loader):
 
         '''
         train_X = train_X.view(-1, 28 * 28)
         train_cost, train_loss = rbm.fit(train_X)
         loss_.append(train_cost)
-        iteration_counter += 1
-
-        # if iteration_counter % 500 == 0:
-        #    print(epoch, iteration_counter, sum(loss_) / len(loss_))
         '''
 
         train_X = train_X.view(-1, 28 * 28)
         train_loss = dae.fit(train_X)
+        loss_.append(train_loss)
 
-        iteration_counter += 1
-        if iteration_counter % 500 == 0:
-            print(epoch, iteration_counter, "{:.4f}".format(train_loss))
+        pb_batch.set_description(f"Batch {i + 1}")
+        pb_batch.update(1)
 
-        '''
-        train_X = train_X.view(-1, 28 * 28)
-        train_loss = ann.fit(train_X, train_y)
-
-        iteration_counter += 1
-        if iteration_counter % 500 == 0:
-
-            total, correct = 0, 0
-
-            for test_X, test_y in test_set_loader:
-
-                test_X = test_X.view(-1, 28 * 28)
-                y_ = ann.predict(test_X)
-
-                total += test_y.size(0)
-                correct += torch.eq(y_, test_y).sum()
-
-            accuracy = 100 * (correct / total)
-
-            print("Iteration: {}, loss: {:.4f}, accuracy: {:.2f}%.".format(iteration_counter, train_loss, accuracy))
-
-        print(epoch, iteration_counter, "{:.2f}".format(sum(loss_) / len(loss_)))
-        '''
+    pb_epoch.set_description(f"Epoch {epoch + 1}, training loss: {round(sum(loss_)/len(loss_), 4)}")
+    pb_epoch.update(1)
 
 # show_and_save("weights_{:.1f}".format(epoch), make_grid(rbm.W.view(compress_dim, 1, 28, 28).data))
 
